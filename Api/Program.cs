@@ -1,12 +1,15 @@
+using Core.Interfaces;
 using Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<RepoContext>(opt => 
+builder.Services.AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>));
+builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
+builder.Services.AddDbContext<RepoContext>(opt =>
     opt.UseSqlite("Data source=../Data/Repo.db"));
-builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSwaggerGen(c =>
@@ -28,8 +31,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.MapGet("/", () => "Hello")
-.WithName("Hello")
-.WithOpenApi();
+app.MapBooks();
+app.MapAuthors();
 
 app.Run();
